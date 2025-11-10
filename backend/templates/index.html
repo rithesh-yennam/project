@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Feedback System</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="glass topbar">
+    <h1>🧠 Smart Feedback Analyzer</h1>
+    <nav>
+  <button class="chip" onclick="showSection('home')">Home</button>
+  <button class="chip" id="openAuthBtn">Login / Register</button>
+  <button class="chip" id="navHistory" style="display:none;">My History</button>
+  <button class="chip" id="navAdmin" style="display:none;">Admin</button>
+  <button class="chip danger" id="logoutBtn" style="display:none;">Logout</button>
+</nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="page-section">
+      <div class="card glass">
+        <h2>💬 Share Your Feedback</h2>
+        <form id="feedbackForm" class="form">
+  <input type="text" id="name" placeholder="Your Name (Optional)"/>
+  <input type="email" id="email" placeholder="Your Email (Optional)"/>
+
+  <input type="text" id="topic" placeholder="Product / Service Topic (Optional)"/>
+
+  <select id="feedback_type">
+    <option value="">Select Feedback Type</option>
+    <option value="complaint">Complaint</option>
+    <option value="suggestion">Suggestion</option>
+    <option value="appreciation">Appreciation</option>
+    <option value="bug">Bug Report</option>
+  </select>
+
+  <textarea id="message" placeholder="Write your feedback..." required></textarea>
+<p id="charCount" style="text-align:right; font-size:14px; color:#6f6f6f; margin-top:4px;">
+  0 / 300 characters
+</p>
+
+  <label>Rate Us (1–5):</label>
+  <input type="number" id="rating" min="1" max="5" placeholder="1–5"/>
+
+  <button type="submit" class="btn primary">Submit Feedback</button>
+</form>
+
+      </div>
+
+
+      <div class="card glass">
+        <h2>📊 Sentiment Overview</h2>
+        <div class="chart-wrap"><canvas id="sentimentChart"></canvas></div>
+        <button class="btn secondary" id="refreshBtn">Refresh Chart</button>
+      </div>
+    </section>
+
+    <!-- USER HISTORY -->
+    <section id="user-history" class="page-section hidden">
+      <div class="card glass wide">
+        <h2>
+  <img width="26" height="26" style="vertical-align:middle; margin-right:6px;"
+  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAIxUlEQVR4AeyZXYxU1xbG9zv3zWxs0u4Q2iCaxMZFWuQmqQWQom2Apkgq2VUgTpm0C3YqMl2UuT9NZknZ7d2/3vfvfd8e69ufu55zrnPOec55yT/3yT9zwjUDS9YFxCDWcM0MjUqY1m0tq0bY2PPSXvSvqXtqmNqfKT1bu9a1Z9dVNWz/kl++iM2pCrQKjxxR5BiZpwA5JBGPB1o5hSvOmJOTsZHvI/BX3uzSMyqF9+PmahBRqMoJ2mmjJdY/5H3HzGPNtZCOTPG9ABeADUKpm+zzT0nC7RIsrW+B+KX/uTz4YrDULo1Lq8oa5Y0mYTCdHMc3L7fxM8hVy7cEagiUskqGxCrG+4gDxuQ4Kw9Xn9vzB6mn+HWi4nXTbGZKMiC7mP0J7lTrijGYQWylW6H4MQ3AqwZ7iTH5sXo3MuZk6zdyFZpR9LNNgGQAxHagSeRVc6/CnUN7G9sjl8xSY8BSp5ZL2hc2Q1hE6BSVpeqRh8SctGmZr3pQA8gmnqEzMKlzx4Zl0ClYO0G6ic3dv7m5tyfy7wjwA9QDbHcCHV20P4sFQEFjB8gPB62RDngbIGaG5qpGqoP2TRvHpPVv4r5Let1RoYkolqS9EzSkbOzoyx9rb05GEvnmHwh8jvdUoB5tWG4YmTIOazhlA8qkUQGhjE9NhgCkeGeArTwH1j4KeuBxhAnInkc9L/QCvE959C/2F7oB/SVt63oP98fF9nRL31N++iHN6zAaq8QnFouX2vqwK6h7kODU9fOg0muE30BV0i24mOc2LGblazq5Tj8RQtiuChR9SnG5nqUvOG1Q7soGgphYiJQqtiMuTC16uRoNnld2eixPmiBz1Uy1PD4q7vb6o3rA4sZ2kPXqGaFL5Q4XJbVR0tXeTUx2J2FqVsJxr33p5hl7H5gvB+yBpwJ5rBFl7+ASQf+0ODqF8B42a6pko7EJpU7NJtQ51E1bNJqgQaT6sOQ5fjgT1F3vZ5n7nhsy0lgqF7yKy1e6X2dYB3gNldY5WkHGQbeEI0ikMbSpCpRhh1Jwp3Q2Ag7TVggbvQqa9OCMZfTenP2ecDPMVz3KTl5FvwWBHDs3L9lyeZ2oDa0qCpUjEjUqWdUVqMiS8+aCI+miDQzsw9i986Z+ayz71zz/2aSUPSyf/u"/>
+  My Feedback History
+</h2>
+
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>ID</th><th>Message</th><th>Sentiment</th><th>Score</th><th>Date</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="admin-dashboard" class="page-section hidden">
+      <div class="card glass wide">
+        <h2>🧑‍💼 Admin Dashboard</h2>
+        <button id="exportJsonBtn" class="btn secondary">Export to JSON</button>
+        <table id="adminTable">
+          <thead>
+            <tr>
+              <th>ID</th><th>User</th><th>Message</th><th>Sentiment</th><th>Rating</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- AUTH MODAL -->
+    <div id="authModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="closeAuthModal()">&times;</span>
+
+    <!-- LOGIN -->
+    <div id="loginBox">
+      <h2>
+  <svg class="login-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>
+    <rect x="15" y="11" width="6" height="5" rx="1"/>
+    <path d="M18 11v-2a2 2 0 0 0-4 0"/>
+  </svg>
+  Login
+</h2>
+
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required />
+        <input type="password" id="loginPassword" placeholder="Password" required />
+        <button type="submit" id="loginBtn" class="btn primary">Login</button>
+      </form>
+      <p>Don’t have an account? <a href="#" id="switchToRegister">Register</a></p>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerBox" class="hidden">
+       <h2>
+  <svg class="reg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M5.5 21a6.5 6.5 0 0 1 13 0"/>
+    <path d="M18 8v6"/>
+    <path d="M21 11h-6"/>
+  </svg>
+  Register
+</h2>
+
+      <form id="registerForm">
+        <input type="text" id="regName" placeholder="Full Name" required />
+        <input type="email" id="regEmail" placeholder="Email" required />
+        <input type="password" id="regPassword" placeholder="Password" required />
+        <button type="submit" id="registerBtn" class="btn secondary">Register</button>
+      </form>
+      <p>Already registered? <a href="#" id="switchToLogin">Login</a></p>
+    </div>
+
+  </div>
+</div>
+
+  </main>
+
+  <footer class="glass footer">
+    <p>© 2025 Smart Feedback System • Designed by <b>Rithesh Yennam</b></p>
+  </footer>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+  
+</body>
+</html>
+

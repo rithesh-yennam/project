@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard • Smart Feedback System</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="glass topbar">
+  <h1>🧑‍💼 Admin Dashboard</h1>
+  <nav>
+    <button class="chip" onclick="goHome()">Home</button>
+    <button class="chip danger" id="logoutBtn">Logout</button>
+    <!-- REMOVE ADMIN BUTTON (We are already on admin page) -->
+  </nav>
+</header>
+
+<main>
+
+  <section class="card glass">
+    <h2>🔐 Administrator Responsibilities</h2>
+    <ul style="line-height: 1.7; margin-left: 18px;">
+      <li><b>View All Feedback</b></li>
+      <li><b>Analyze Sentiment Trends</b></li>
+      <li><b>Moderate Feedback</b></li>
+      <li><b>Improve Service</b></li>
+    </ul>
+  </section>
+
+  <section class="card glass">
+    <h2>📊 Sentiment Trend Overview</h2>
+    <canvas id="adminChart"></canvas>
+  </section>
+
+  <section class="card glass wide">
+    <h2>📜 All Submitted Feedback</h2>
+    <table id="adminTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User ID</th>
+          <th>Feedback</th>
+          <th>Sentiment</th>
+          <th>Rating</th>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer class="glass footer">
+  <p>© 2025 Smart Feedback System • Admin Panel</p>
+</footer>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<script>
+// ✅ Home Button
+function goHome() {
+  window.location.href = "/";
+}
+
+// ✅ Make sure user is admin before loading page features
+document.addEventListener("DOMContentLoaded", () => {
+  // =========================
+
+   const logoutBtn = document.querySelector("#logoutBtn");
+  if (logoutBtn) logoutBtn.onclick = doLogout;
+
+  const auth = getAuth();
+  if (!auth.token || auth.user.role !== "admin") {
+    Swal.fire("Access Denied", "Only admin users can access this page.", "error")
+      .then(() => window.location.href = "index.html");
+    return;
+  }
+
+  // ✅ Load admin data safely when page is ready
+  loadAdminTable();
+  loadAdminChart();
+});
+</script>
+
+</body>
+</html>
