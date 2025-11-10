@@ -82,6 +82,7 @@ class User(db.Model):
     email = db.Column(db.String(150), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), default="user")  # "user" | "admin"
+    role = db.Column(db.String(20), default="user")  # Add this line
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Feedback(db.Model):
@@ -376,6 +377,36 @@ def export_json():
     ]
     return jsonify(data), 200
 
+# --------- AUTO CREATE ADMIN IF NOT EXISTS ----------
+with app.app_context():
+    db.create_all()
+    from werkzeug.security import generate_password_hash
+    
+    admin_email = "riteshyennam@gmail.com"     # change if needed
+    admin_password = "Ritesh123#"            # change if needed
+
+    existing_admin = User.query.filter_by(email=admin_email).first()
+    if not existing_admin:
+        admin_user = User(
+            name="System Admin",
+            email=admin_email,
+            password=generate_password_hash(admin_password),
+            role="admin"
+        )
+        db.session.add(admin_user)
+        db.session.commit()
+        print("✅ Admin user created:")
+        print(f"   Email: {admin_email}")
+        print(f"   Password: {admin_password}")
+    else:
+        print("✅ Admin already exists")
+
+
+# -----------------------------
+# RUN APPLICATION
+# -----------------------------
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)), debug=True)
 
 
 
